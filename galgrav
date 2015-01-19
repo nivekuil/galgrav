@@ -1,0 +1,78 @@
+import pygame
+class Ev_PlanetCreated:
+    def __init__(self, pos, radius):
+        self.id = 'PlanetCreated'
+        self.pos = pos
+        self.radius = radius
+        
+class Planet:
+    def __init__(self, evm, pos, radius):
+        self.evm = evm
+        self.evm.register(self)
+        
+        self.pos = pos
+        self.radius = radius
+
+    def create(self):
+        self.evm.post(Ev_PlanetCreated(self.pos, self.radius))
+
+    def notify(self, evt):
+        pass
+
+class EventManager:
+    def __init__(self):
+        self.event_queue = []
+        self.listeners = []
+        
+    def register(self, listener):
+        self.listeners.append(listener)
+        
+    def post(self, event):
+        self.event_queue.append(event)
+        
+    def pump(self):
+        for evt in self.event_queue:
+            for listener in self.listeners:
+                listener.notify(evt)
+        self.event_queue = []
+
+        
+class View:
+    def __init__(self, evm):
+        self.evm = evm
+        self.evm.register(self)
+
+        self.display = pygame.display.set_mode((800,600))
+
+        self.sprites = pygame.sprite.RenderUpdates()
+    def draw(self):
+        self.sprites.draw(self.display)
+        
+    def add_planet(pos, radius):
+        self.sprites.add(Spr_Planet(pos, radius))
+    
+    def notify(self, evt):
+        if evt.id = 'PlanetCreated':
+            self.add_planet(evt.pos, evt.radius)
+
+            
+class Spr_Planet(pygame.sprite.Sprite):
+    def __init__(self, pos, radius):
+        super(Spr_Planet, self).__init__()
+        self.image = pygame.Surface(radius*2, radius*2)
+        self.rect = self.image.get_rect()
+        self.radius = radius
+
+        pygame.draw.circle(self.image, (0,0,0), pos, radius)
+def main():
+    pygame.init()
+    
+    evm = EventManager()
+    View = View(evm)
+    Model = Model(evm)
+    Controller = Controller(evm)
+    
+    while 1:
+        for event in pygame.event.get():
+            pass
+        View.draw()
